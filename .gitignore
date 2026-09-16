@@ -11,6 +11,7 @@ build
 out/
 .idea
 *.iml
+.mcp.json
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
