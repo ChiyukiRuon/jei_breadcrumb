@@ -1,0 +1,16 @@
+{
+  "jei_breadcrumb.button.back": "Back",
+  "jei_breadcrumb.button.forward": "Forward",
+  "jei_breadcrumb.button.root": "Back to the first step",
+
+  "jei_breadcrumb.role.output": "Recipe",
+  "jei_breadcrumb.role.uses": "Uses",
+
+  "jei_breadcrumb.command.debug.enabled": "JEI Breadcrumb debug logging enabled (until the game restarts)",
+  "jei_breadcrumb.command.debug.disabled": "JEI Breadcrumb debug logging disabled",
+
+  "key.categories.jei_breadcrumb": "JEI Breadcrumb",
+  "key.jei_breadcrumb.back": "Back",
+  "key.jei_breadcrumb.forward": "Forward",
+  "key.jei_breadcrumb.root": "Back to the first step"
+}

@@ -1,0 +1,16 @@
+{
+  "jei_breadcrumb.button.back": "返回",
+  "jei_breadcrumb.button.forward": "前进",
+  "jei_breadcrumb.button.root": "回到顶层",
+
+  "jei_breadcrumb.role.output": "配方",
+  "jei_breadcrumb.role.uses": "用途",
+
+  "jei_breadcrumb.command.debug.enabled": "JEI 面包屑调试日志已开启（重启游戏后失效）",
+  "jei_breadcrumb.command.debug.disabled": "JEI 面包屑调试日志已关闭",
+
+  "key.categories.jei_breadcrumb": "JEI 面包屑",
+  "key.jei_breadcrumb.back": "返回",
+  "key.jei_breadcrumb.forward": "前进",
+  "key.jei_breadcrumb.root": "回到顶层"
+}

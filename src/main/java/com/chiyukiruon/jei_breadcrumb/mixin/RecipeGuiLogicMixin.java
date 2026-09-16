@@ -1,0 +1,124 @@
+package com.chiyukiruon.jei_breadcrumb.mixin;
+
+import com.chiyukiruon.jei_breadcrumb.JEIBreadcrumb;
+import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbBar;
+import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbEntry;
+import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbHistory;
+import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.runtime.IIngredientManager;
+import mezz.jei.common.input.MouseUtil;
+import mezz.jei.gui.recipes.IRecipeGuiLogic;
+import mezz.jei.gui.recipes.RecipeGuiLogic;
+import mezz.jei.gui.recipes.RecipesGui;
+import mezz.jei.gui.recipes.lookups.ILookupState;
+import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+@Mixin(RecipeGuiLogic.class)
+public abstract class RecipeGuiLogicMixin {
+	@Shadow
+	@Final
+	private IIngredientManager ingredientManager;
+
+	@Shadow
+	private ILookupState state;
+
+	@Inject(method = "<init>", at = @At("RETURN"))
+	private void jei_breadcrumb$onInit(CallbackInfo ci) {
+		BreadcrumbHistory.setLogic((IRecipeGuiLogic) (Object) this);
+	}
+
+	/**
+	 * {@code setState} is the single choke point every display change goes through.
+	 */
+	@Inject(method = "setState", at = @At("RETURN"))
+	private void jei_breadcrumb$onSetState(ILookupState state, boolean saveHistory, CallbackInfoReturnable<Boolean> cir) {
+		if (!cir.getReturnValueZ()) {
+			return;
+		}
+
+		if (saveHistory) {
+			BreadcrumbHistory.record(BreadcrumbEntry.snapshot(ingredientManager, state), isClickInsideRecipeGui());
+			return;
+		}
+
+		BreadcrumbEntry snapshot = BreadcrumbEntry.snapshot(ingredientManager, state);
+		int step = BreadcrumbHistory.indexOf(state);
+		if (step < 0) {
+			step = BreadcrumbHistory.indexOfLookup(snapshot.lookupKey());
+			if (step >= 0) {
+				JEIBreadcrumb.LOGGER.debug(
+					"JEI restored a state that is not on the path by identity, matched step {} by lookup instead", step + 1);
+			}
+		}
+
+		if (step >= 0) {
+			BreadcrumbHistory.moveTo(step);
+			BreadcrumbHistory.replace(step, snapshot);
+		} else {
+			BreadcrumbHistory.record(snapshot, false);
+		}
+	}
+
+	/**
+	 * Whether the lookup was started by clicking inside the recipe screen, as opposed to the ingredient
+	 * list sidebar next to it -- which starts a fresh path.
+	 * <p>
+	 * The screen alone cannot tell these apart: JEI keeps the ingredient list visible while the recipe
+	 * screen is open, so {@code minecraft.screen} is the recipe screen either way. Two things count as
+	 * "inside":
+	 * <ul>
+	 *     <li>the pointer is over the recipe panel itself ({@code isMouseOver} ignores the overlay),</li>
+	 *     <li>or the recipe screen has an ingredient under the pointer -- which covers the catalyst
+	 *         column of applicable blocks, drawn outside the panel.</li>
+	 * </ul>
+	 */
+	private static boolean isClickInsideRecipeGui() {
+		if (Minecraft.getInstance().screen instanceof RecipesGui recipesGui) {
+			double mouseX = MouseUtil.getX();
+			double mouseY = MouseUtil.getY();
+			return recipesGui.isMouseOver(mouseX, mouseY) ||
+				recipesGui.getIngredientUnderMouse(mouseX, mouseY).findAny().isPresent();
+		}
+		return false;
+	}
+
+	/**
+	 * Switching the displayed recipe category rewrites the current lookup state in place, so it never
+	 * reaches {@code setState}. Without this the current step would keep showing the category it was
+	 * first recorded with instead of the one on screen.
+	 */
+	@Inject(method = "setRecipeCategory", at = @At("RETURN"))
+	private void jei_breadcrumb$onSetRecipeCategory(IRecipeCategory<?> recipeCategory, CallbackInfo ci) {
+		jei_breadcrumb$refreshCurrentStep();
+	}
+
+	@Inject(method = "nextRecipeCategory", at = @At("RETURN"))
+	private void jei_breadcrumb$onNextRecipeCategory(CallbackInfoReturnable<Boolean> cir) {
+		jei_breadcrumb$refreshCurrentStep();
+	}
+
+	@Inject(method = "previousRecipeCategory", at = @At("RETURN"))
+	private void jei_breadcrumb$onPreviousRecipeCategory(CallbackInfoReturnable<Boolean> cir) {
+		jei_breadcrumb$refreshCurrentStep();
+	}
+
+	private void jei_breadcrumb$refreshCurrentStep() {
+		if (this.state == null) {
+			return;
+		}
+		BreadcrumbHistory.refreshCurrent(BreadcrumbEntry.snapshot(ingredientManager, this.state));
+	}
+
+	@Inject(method = "clearHistory", at = @At("HEAD"))
+	private void jei_breadcrumb$onClearHistory(CallbackInfo ci) {
+		BreadcrumbHistory.clear();
+		BreadcrumbBar.reset();
+	}
+}
