@@ -61,7 +61,7 @@ Controls whether debug logging is written **for the current game run**.
 | `/jeib debug disable` | Turn debug logging off          |
 
 > [!NOTE]
-> This is a client command, so it works on servers too. The setting only lasts for the current run: it goes back to off when the game restarts.
+> This is a client command. The setting only lasts for the current run: it goes back to off when the game restarts.
 
 ---
 

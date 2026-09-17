@@ -147,8 +147,8 @@ public final class BreadcrumbBar {
 		IScalableDrawable background = textures.getButtonForState(isPressed, active, hovered);
 		background.draw(guiGraphics, button.getX(), button.getY(), button.getWidth(), button.getHeight());
 
-		int x = button.getX() + (button.getWidth() - icon.WIDTH) / 2;
-		int y = button.getY() + (button.getHeight() - icon.HEIGHT) / 2;
+		int x = button.getX() + (button.getWidth() - icon.width()) / 2;
+		int y = button.getY() + (button.getHeight() - icon.height()) / 2;
 		if (isPressed && hovered) {
 			x += 1;
 			y += 1;
@@ -161,23 +161,43 @@ public final class BreadcrumbBar {
 	}
 
 	private enum Icon {
-		PREVIOUS(9, 7),
-		NEXT(9, 7),
-		ROOT(5, 7);
+		PREVIOUS,
+		NEXT,
+		/** JEI has no "back to top" sprite, so this one is drawn from two rectangles instead. */
+		ROOT;
 
-		private final int WIDTH;
-		private final int HEIGHT;
+		private static final int ROOT_WIDTH = 5;
+		private static final int ROOT_HEIGHT = 7;
 
-		Icon(int width, int height) {
-			this.WIDTH = width;
-			this.HEIGHT = height;
+		/** JEI's arrow sprite, or null for {@link #ROOT}. */
+		private @Nullable IDrawableStatic sprite() {
+			return switch (this) {
+				case PREVIOUS -> Internal.getTextures().getArrowPrevious();
+				case NEXT -> Internal.getTextures().getArrowNext();
+				case ROOT -> null;
+			};
+		}
+
+		/**
+		 * The sprite's own size, queried rather than assumed: JEI resized its arrow icons between
+		 * versions (9x7 in 19.x, 9x9 in 15.x), and a wrong height is what pushes the arrow off center.
+		 */
+		int width() {
+			IDrawableStatic drawable = sprite();
+			return drawable != null ? drawable.getWidth() : ROOT_WIDTH;
+		}
+
+		int height() {
+			IDrawableStatic drawable = sprite();
+			return drawable != null ? drawable.getHeight() : ROOT_HEIGHT;
 		}
 
 		void draw(GuiGraphics guiGraphics, int x, int y, int tint) {
-			switch (this) {
-				case PREVIOUS -> blit(guiGraphics, Internal.getTextures().getArrowPrevious(), x, y, tint);
-				case NEXT -> blit(guiGraphics, Internal.getTextures().getArrowNext(), x, y, tint);
-				case ROOT -> drawChevrons(guiGraphics, x, y, tint);
+			IDrawableStatic drawable = sprite();
+			if (drawable != null) {
+				blit(guiGraphics, drawable, x, y, tint);
+			} else {
+				drawChevrons(guiGraphics, x, y, tint);
 			}
 		}
 

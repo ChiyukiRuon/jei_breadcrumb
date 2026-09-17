@@ -4,7 +4,7 @@ import com.chiyukiruon.jei_breadcrumb.Config;
 import com.chiyukiruon.jei_breadcrumb.JEIBreadcrumb;
 import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbBar;
 import mezz.jei.common.util.ImmutableRect2i;
-import mezz.jei.gui.elements.IconButton;
+import mezz.jei.gui.elements.GuiIconButton;
 import mezz.jei.gui.recipes.RecipesGui;
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Final;
@@ -17,21 +17,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RecipesGui.class)
 public abstract class RecipesGuiMixin {
-	@Shadow
+	@Shadow(remap = false)
 	@Final
-	private IconButton nextRecipeCategory;
-	@Shadow
+	private GuiIconButton nextRecipeCategory;
+	@Shadow(remap = false)
 	@Final
-	private IconButton previousRecipeCategory;
-	@Shadow
+	private GuiIconButton previousRecipeCategory;
+	@Shadow(remap = false)
 	@Final
-	private IconButton nextPage;
-	@Shadow
+	private GuiIconButton nextPage;
+	@Shadow(remap = false)
 	@Final
-	private IconButton previousPage;
-	@Shadow
+	private GuiIconButton previousPage;
+	@Shadow(remap = false)
 	private int headerHeight;
-	@Shadow
+	@Shadow(remap = false)
 	private ImmutableRect2i area;
 
 	/**
@@ -43,7 +43,7 @@ public abstract class RecipesGuiMixin {
 	 */
 	@Inject(
 		method = "init",
-		at = @At(value = "INVOKE", target = "Lmezz/jei/gui/recipes/RecipesGui;updateLayout()V")
+		at = @At(value = "INVOKE", target = "Lmezz/jei/gui/recipes/RecipesGui;updateLayout()V", remap = false)
 	)
 	private void jei_breadcrumb$reserveSpace(CallbackInfo ci) {
 		if (!Config.enabled) {
@@ -59,7 +59,7 @@ public abstract class RecipesGuiMixin {
 		JEIBreadcrumb.LOGGER.debug("Reserved {}px above the recipe layouts for the breadcrumb bar", shift);
 	}
 
-	private static void shiftDown(IconButton button, int amount) {
+	private static void shiftDown(GuiIconButton button, int amount) {
 		ImmutableRect2i buttonArea = button.getArea();
 		button.updateBounds(buttonArea.setPosition(buttonArea.getX(), buttonArea.getY() + amount));
 	}

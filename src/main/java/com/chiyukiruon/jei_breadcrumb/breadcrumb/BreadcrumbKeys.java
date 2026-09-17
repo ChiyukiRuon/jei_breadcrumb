@@ -6,10 +6,10 @@ import mezz.jei.gui.recipes.RecipesGui;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.event.TickEvent;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -97,7 +97,13 @@ public final class BreadcrumbKeys {
 		}
 	}
 
-	public static void onClientTick(ClientTickEvent.Post event) {
+	public static void onClientTick(TickEvent.ClientTickEvent event) {
+		// Forge fires this for both the start and the end of the tick; only the end matches what the
+		// NeoForge build used to get from ClientTickEvent.Post.
+		if (event.phase != TickEvent.Phase.END) {
+			return;
+		}
+
 		Action action = heldAction;
 		if (action == null || !action.REPEATABLE) {
 			return;

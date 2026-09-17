@@ -1,8 +1,8 @@
 package com.chiyukiruon.jei_breadcrumb;
 
-import net.neoforged.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.slf4j.Logger;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -15,27 +15,27 @@ public final class Config {
 	private static final int DEFAULT_RECIPE_COLOR = 0xFF4CAF50;
 	private static final int DEFAULT_USES_COLOR = 0xFFE08A2E;
 
-	private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-	private static final ModConfigSpec.BooleanValue ENABLED = BUILDER
+	private static final ForgeConfigSpec.BooleanValue ENABLED = BUILDER
 		.comment("Show the breadcrumb navigation bar at the top of the JEI recipe screen.")
 		.define("enabled", true);
 
-	private static final ModConfigSpec.ConfigValue<String> RECIPE_COLOR = BUILDER
+	private static final ForgeConfigSpec.ConfigValue<String> RECIPE_COLOR = BUILDER
 		.comment(
 			"Color of the \"recipe\" marker: a step looked up to see how to make that ingredient.",
 			"Format: #RRGGBB. Used for both the icon outline and the tooltip label."
 		)
 		.define("recipeColor", "#4CAF50", Config::isHexColor);
 
-	private static final ModConfigSpec.ConfigValue<String> USES_COLOR = BUILDER
+	private static final ForgeConfigSpec.ConfigValue<String> USES_COLOR = BUILDER
 		.comment(
 			"Color of the \"uses\" marker: a step looked up to see what that ingredient is used for.",
 			"Format: #RRGGBB. Used for both the icon outline and the tooltip label."
 		)
 		.define("usesColor", "#E08A2E", Config::isHexColor);
 
-	public static final ModConfigSpec SPEC = BUILDER.build();
+	public static final ForgeConfigSpec SPEC = BUILDER.build();
 
 	public static boolean enabled = true;
 	public static int recipeColor = DEFAULT_RECIPE_COLOR;

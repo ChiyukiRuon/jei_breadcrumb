@@ -22,14 +22,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RecipeGuiLogic.class)
 public abstract class RecipeGuiLogicMixin {
-	@Shadow
+	@Shadow(remap = false)
 	@Final
 	private IIngredientManager ingredientManager;
 
-	@Shadow
+	@Shadow(remap = false)
 	private ILookupState state;
 
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(method = "<init>", remap = false, at = @At("RETURN"))
 	private void jei_breadcrumb$onInit(CallbackInfo ci) {
 		BreadcrumbHistory.setLogic((IRecipeGuiLogic) (Object) this);
 	}
@@ -37,7 +37,7 @@ public abstract class RecipeGuiLogicMixin {
 	/**
 	 * {@code setState} is the single choke point every display change goes through.
 	 */
-	@Inject(method = "setState", at = @At("RETURN"))
+	@Inject(method = "setState", remap = false, at = @At("RETURN"))
 	private void jei_breadcrumb$onSetState(ILookupState state, boolean saveHistory, CallbackInfoReturnable<Boolean> cir) {
 		if (!cir.getReturnValueZ()) {
 			return;
@@ -101,18 +101,18 @@ public abstract class RecipeGuiLogicMixin {
 	 * reaches {@code setState}. Without this the current step would keep showing the category it was
 	 * first recorded with instead of the one on screen.
 	 */
-	@Inject(method = "setRecipeCategory", at = @At("RETURN"))
+	@Inject(method = "setRecipeCategory", remap = false, at = @At("RETURN"))
 	private void jei_breadcrumb$onSetRecipeCategory(IRecipeCategory<?> recipeCategory, CallbackInfo ci) {
 		jei_breadcrumb$refreshCurrentStep();
 	}
 
-	@Inject(method = "nextRecipeCategory", at = @At("RETURN"))
-	private void jei_breadcrumb$onNextRecipeCategory(CallbackInfoReturnable<Boolean> cir) {
+	@Inject(method = "nextRecipeCategory", remap = false, at = @At("RETURN"))
+	private void jei_breadcrumb$onNextRecipeCategory(CallbackInfo ci) {
 		jei_breadcrumb$refreshCurrentStep();
 	}
 
-	@Inject(method = "previousRecipeCategory", at = @At("RETURN"))
-	private void jei_breadcrumb$onPreviousRecipeCategory(CallbackInfoReturnable<Boolean> cir) {
+	@Inject(method = "previousRecipeCategory", remap = false, at = @At("RETURN"))
+	private void jei_breadcrumb$onPreviousRecipeCategory(CallbackInfo ci) {
 		jei_breadcrumb$refreshCurrentStep();
 	}
 
@@ -123,7 +123,7 @@ public abstract class RecipeGuiLogicMixin {
 		BreadcrumbHistory.refreshCurrent(BreadcrumbEntry.snapshot(ingredientManager, this.state));
 	}
 
-	@Inject(method = "clearHistory", at = @At("HEAD"))
+	@Inject(method = "clearHistory", remap = false, at = @At("HEAD"))
 	private void jei_breadcrumb$onClearHistory(CallbackInfo ci) {
 		BreadcrumbHistory.clear();
 		BreadcrumbBar.reset();
