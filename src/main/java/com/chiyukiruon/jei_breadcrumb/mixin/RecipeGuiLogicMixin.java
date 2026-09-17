@@ -4,9 +4,9 @@ import com.chiyukiruon.jei_breadcrumb.JEIBreadcrumb;
 import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbBar;
 import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbEntry;
 import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbHistory;
+import com.mojang.blaze3d.platform.Window;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.runtime.IIngredientManager;
-import mezz.jei.common.input.MouseUtil;
 import mezz.jei.gui.recipes.IRecipeGuiLogic;
 import mezz.jei.gui.recipes.RecipeGuiLogic;
 import mezz.jei.gui.recipes.RecipesGui;
@@ -80,13 +80,20 @@ public abstract class RecipeGuiLogicMixin {
 	 * </ul>
 	 */
 	private static boolean isClickInsideRecipeGui() {
-		if (Minecraft.getInstance().screen instanceof RecipesGui recipesGui) {
-			double mouseX = MouseUtil.getX();
-			double mouseY = MouseUtil.getY();
-			return recipesGui.isMouseOver(mouseX, mouseY) ||
-				recipesGui.getIngredientUnderMouse(mouseX, mouseY).findAny().isPresent();
+		Minecraft minecraft = Minecraft.getInstance();
+		if (!(minecraft.screen instanceof RecipesGui recipesGui)) {
+			return false;
 		}
-		return false;
+
+		// The pointer in GUI coordinates. This is JEI's MouseUtil#getX/#getY inlined: that class only
+		// exists from 19.56 on, and the math is the same one vanilla uses for screen coordinates.
+		Window window = minecraft.getWindow();
+		double scale = window.getGuiScaledWidth() / (double) window.getScreenWidth();
+		double mouseX = minecraft.mouseHandler.xpos() * scale;
+		double mouseY = minecraft.mouseHandler.ypos() * scale;
+
+		return recipesGui.isMouseOver(mouseX, mouseY) ||
+			recipesGui.getIngredientUnderMouse(mouseX, mouseY).findAny().isPresent();
 	}
 
 	/**

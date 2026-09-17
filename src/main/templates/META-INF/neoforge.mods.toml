@@ -78,10 +78,7 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId = "jei"
 type = "required"
-# The mixins bind to JEI internals that were reshuffled during 19.x: IRecipeGuiLogic#forward, the
-# NavigationHistory class, MouseUtil and JeiGuiColors are all absent in 19.44 and earlier. Requiring
-# the version this build was verified against turns an otherwise confusing crash into a clear message.
-versionRange = "[19.56,)"
+versionRange = "[19.50,)"
 ordering = "AFTER"
 side = "CLIENT"
 

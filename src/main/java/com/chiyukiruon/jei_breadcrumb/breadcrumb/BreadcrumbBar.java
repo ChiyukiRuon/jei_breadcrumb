@@ -2,10 +2,10 @@ package com.chiyukiruon.jei_breadcrumb.breadcrumb;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
+import mezz.jei.api.gui.drawable.IScalableDrawable;
 import mezz.jei.common.Internal;
 import mezz.jei.common.gui.JeiGuiColors;
 import mezz.jei.common.gui.JeiGuiColors.GuiColor;
-import mezz.jei.common.gui.elements.ScalableDrawable;
 import mezz.jei.common.gui.textures.Textures;
 import mezz.jei.common.util.ImmutableRect2i;
 import net.minecraft.client.Minecraft;
@@ -142,8 +142,10 @@ public final class BreadcrumbBar {
 		Textures textures = Internal.getTextures();
 		boolean hovered = active && button.contains(mouseX, mouseY);
 
-		ScalableDrawable background = textures.getButtonForState(isPressed, active, hovered);
-		background.draw(guiGraphics, button);
+		// The API interface: JEI renamed the backing class between versions (DrawableNineSliceTexture
+		// in 19.27, ScalableDrawable from 19.44) but IScalableDrawable is unchanged across all of them.
+		IScalableDrawable background = textures.getButtonForState(isPressed, active, hovered);
+		background.draw(guiGraphics, button.getX(), button.getY(), button.getWidth(), button.getHeight());
 
 		int x = button.getX() + (button.getWidth() - icon.WIDTH) / 2;
 		int y = button.getY() + (button.getHeight() - icon.HEIGHT) / 2;
