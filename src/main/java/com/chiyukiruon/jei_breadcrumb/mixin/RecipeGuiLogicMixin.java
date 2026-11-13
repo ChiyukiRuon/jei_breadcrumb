@@ -29,11 +29,6 @@ public abstract class RecipeGuiLogicMixin {
 	@Shadow
 	private ILookupState state;
 
-	@Inject(method = "<init>", at = @At("RETURN"))
-	private void jei_breadcrumb$onInit(CallbackInfo ci) {
-		BreadcrumbHistory.setLogic((IRecipeGuiLogic) (Object) this);
-	}
-
 	/**
 	 * {@code setState} is the single choke point every display change goes through.
 	 */
@@ -42,6 +37,10 @@ public abstract class RecipeGuiLogicMixin {
 		if (!cir.getReturnValueZ()) {
 			return;
 		}
+
+		// R8 can reuse the constructor's this slot. Bind only once a lookup succeeds,
+		// before recording any steps that can invoke back/forward navigation.
+		BreadcrumbHistory.setLogic((IRecipeGuiLogic) (Object) this);
 
 		if (saveHistory) {
 			BreadcrumbHistory.record(BreadcrumbEntry.snapshot(ingredientManager, state), isClickInsideRecipeGui());

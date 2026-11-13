@@ -12,6 +12,11 @@ repositories {
     mavenLocal()
 
     maven {
+        url 'https://maven.blamejared.com'
+        content { includeGroup 'mezz.jei' }
+    }
+
+    maven {
         url "https://cursemaven.com"
     }
 }
@@ -122,8 +127,10 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    compileOnly "curse.maven:jei-238222:8886909"
-    runtimeOnly "curse.maven:jei-238222:8886909"
+    // The full mod JAR includes JEI modules and its nested configuration mod.
+    implementation("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}") {
+        transitive = false
+    }
 
     runtimeOnly "curse.maven:imblocker-483760:8167852"
     runtimeOnly "curse.maven:just-enough-characters-250702:8771217"
@@ -137,6 +144,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
                              neo_version            : neo_version,
                              neo_version_range      : neo_version_range,
                              loader_version_range   : loader_version_range,
+                             jei_version_range      : jei_version_range,
                              mod_id                 : mod_id,
                              mod_name               : mod_name,
                              mod_license            : mod_license,
