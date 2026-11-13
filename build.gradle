@@ -142,6 +142,13 @@ repositories {
     // }
 
     maven {
+        url 'https://maven.blamejared.com'
+        content {
+            includeGroup 'mezz.jei'
+        }
+    }
+
+    maven {
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
@@ -174,8 +181,9 @@ dependencies {
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    compileOnly fg.deobf("curse.maven:jei-238222:8765623")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:8765623")
+    implementation("mezz.jei:jei-${minecraft_version}-forge:${jei_version}") {
+        transitive = false
+    }
 
     runtimeOnly fg.deobf("curse.maven:imblocker-483760:6810572")
     runtimeOnly fg.deobf("curse.maven:just-enough-characters-250702:8771525")
