@@ -1,9 +1,12 @@
 package com.chiyukiruon.jei_breadcrumb;
 
 import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbKeys;
+import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbMouse;
+import com.chiyukiruon.jei_breadcrumb.breadcrumb.BreadcrumbRenderer;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -24,49 +27,53 @@ import org.slf4j.Logger;
  */
 @Mod(JEIBreadcrumb.MODID)
 public class JEIBreadcrumb {
-	public static final String MODID = "jei_breadcrumb";
-	public static final Logger LOGGER = LogUtils.getLogger();
+    public static final String MODID = "jei_breadcrumb";
+    public static final Logger LOGGER = LogUtils.getLogger();
 
-	public JEIBreadcrumb() {
-		if (FMLEnvironment.dist != Dist.CLIENT) {
-			return;
-		}
+    public JEIBreadcrumb() {
+        if (FMLEnvironment.dist != Dist.CLIENT) {
+            return;
+        }
 
-		LOGGER.info("JEI Breadcrumb {} loading", modVersion());
-		logJeiVersion();
+        LOGGER.info("JEI Breadcrumb {} loading", modVersion());
+        logJeiVersion();
 
-		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.SPEC);
 
-		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-		modEventBus.addListener(Config::onLoad);
-		modEventBus.addListener(BreadcrumbKeys::register);
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modEventBus.addListener(Config::onLoad);
+        modEventBus.addListener(BreadcrumbKeys::register);
 
-		MinecraftForge.EVENT_BUS.addListener(BreadcrumbKeys::onKeyPressed);
-		MinecraftForge.EVENT_BUS.addListener(BreadcrumbKeys::onKeyReleased);
-		MinecraftForge.EVENT_BUS.addListener(BreadcrumbKeys::onClientTick);
-		MinecraftForge.EVENT_BUS.addListener(DebugCommand::register);
-	}
+        MinecraftForge.EVENT_BUS.addListener(BreadcrumbKeys::onKeyPressed);
+        MinecraftForge.EVENT_BUS.addListener(BreadcrumbKeys::onKeyReleased);
+        MinecraftForge.EVENT_BUS.addListener(BreadcrumbKeys::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(DebugCommand::register);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, BreadcrumbMouse::onPressed);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST, BreadcrumbMouse::onReleased);
+        MinecraftForge.EVENT_BUS.addListener(BreadcrumbMouse::onClosing);
+        MinecraftForge.EVENT_BUS.addListener(BreadcrumbRenderer::onRender);
+    }
 
-	private static String modVersion() {
-		ModList modList = ModList.get();
-		if (modList == null) {
-			return "unknown";
-		}
-		return modList.getModContainerById(MODID)
-			.map(container -> container.getModInfo().getVersion().toString())
-			.orElse("unknown");
-	}
+    private static String modVersion() {
+        ModList modList = ModList.get();
+        if (modList == null) {
+            return "unknown";
+        }
+        return modList.getModContainerById(MODID)
+            .map(container -> container.getModInfo().getVersion().toString())
+            .orElse("unknown");
+    }
 
-	/**
-	 * The mixins reach into JEI internals, so the JEI version is the first thing to check when
-	 * something breaks.
-	 */
-	private static void logJeiVersion() {
-		ModList modList = ModList.get();
-		if (modList == null) {
-			return;
-		}
-		modList.getModContainerById("jei")
-			.ifPresent(jei -> LOGGER.info("JEI Breadcrumb found JEI {}", jei.getModInfo().getVersion()));
-	}
+    /**
+     * The mixins reach into JEI internals, so the JEI version is the first thing to check when
+     * something breaks.
+     */
+    private static void logJeiVersion() {
+        ModList modList = ModList.get();
+        if (modList == null) {
+            return;
+        }
+        modList.getModContainerById("jei")
+            .ifPresent(jei -> LOGGER.info("JEI Breadcrumb found JEI {}", jei.getModInfo().getVersion()));
+    }
 }
